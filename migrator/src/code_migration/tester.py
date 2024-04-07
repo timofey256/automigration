@@ -174,8 +174,8 @@ class Tester:
             Assert both expected outcomes and error handling paths to ensure robustness.
 
         DO NOT INCLUDE ANYTHING BUT REQUIRED FORMAT OF (test_filename : [content of the test file]). DO NOT ADD ANY COMMENTS!
-        Note that you have only {self.max_tokens} tokens to output.
         Ensure that filenames include extensions corresponding to their programming language. For example, if you write tests for C#, generate files with .cs extension. 
+        GENERATE TESTS FOR ALL THE FILES
         """
 
         prompt = f"{input_data}\n\n{expected_output}"
@@ -184,7 +184,9 @@ class Tester:
             print("Using cached...")
             return self.tests_cached
         
-        return self.send_request(prompt)
+        tests_str = self.send_request(prompt)
+        print(tests_str)
+        return self.parse_files(tests_str)
     
     def send_request(self, prompt):
         print("Sending request...")
@@ -199,14 +201,13 @@ class Tester:
             "content": prompt,
             }
             ],
-            model=self.model,
-            max_tokens=self.max_tokens
+            model=self.model
         )
 
         return chat_completion.choices[0].message.content
 
     def modificate_tests(self, tests):
-        return tests
+        pass
 
     def save_test_files(self, model_output_tests):
         files = self.parse_files(model_output_tests)
@@ -227,19 +228,23 @@ class Tester:
         test_files = {}
         current_filename = ""
         for line in lines:
-            if line and line.strip().startswith('Test File Name'):
-                current_filename = line.strip().split(':')[1].strip().replace('\\', '')
+            if line and (line.strip().startswith('Name of the New Test File') or line.strip().startswith('Test File Name') or line.strip()[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']):
+                try:
+                    current_filename = line.strip().split(':')[1].strip().replace('\\', '')
+                except:
+                    current_filename = line.strip().split()[1]
                 test_files[current_filename] = ""
             else:
                 if current_filename:
+                    if line.strip() == "```":
+                        current_filename = None
+                        continue
+
                     if line.strip().startswith("```") or line.strip().startswith("Content"):
                         continue
                     test_files[current_filename] += line + "\n"
-        
         return test_files
-        
-        return test_files
-    
+
 if __name__ == "__main__":
     test_tester = Tester(None, None)
     res = test_tester.save_test_files(None)

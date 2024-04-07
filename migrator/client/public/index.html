@@ -1,109 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Upload Directory</title>
     <style>
+        /* Base Styles */
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Helvetica Neue';
+            background-color: #f5f5f5;
             margin: 0;
             padding: 0;
-            background-color: #f0f0f0;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-        }
-
-        form {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 500px;
-            width: 100%;
-        }
-
-        form h2 {
             color: #333;
-            text-align: center;
+        }
+
+        h2 {
+            color: #007BFF;
+            font-size: 28px;
+            /* Slightly larger for emphasis */
             margin-bottom: 20px;
+        }
+
+        p.description {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* Form Styling */
+        form {
+            background-color: #ffffff;
+            padding: 40px;
+            /* More padding for a larger appearance */
+            border-radius: 10px;
+            /* Slightly larger radius for a softer look */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 600px;
+            /* Increased width for a larger form */
+            margin: auto;
         }
 
         input[type="file"],
         input[type="text"] {
-            width: calc(100% - 20px);
-            margin-bottom: 10px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            font-size: 16px;
+            border: 1px solid #ccc;
             display: block;
+            padding: 15px;
+            /* Larger padding for bigger form fields */
+            width: calc(100% - 30px);
+            /* Adjust width to account for padding */
+            margin-bottom: 20px;
+            border-radius: 5px;
+            /* Slightly larger border-radius */
         }
 
         input[type="submit"] {
-            width: 100%;
-            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            padding: 15px 20px;
             border: none;
             border-radius: 5px;
-            background-color: #007bff; /* Bootstrap blue */
-            color: white;
-            font-size: 18px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            width: 100%;
+            font-size: 18px;
+            /* Slightly larger font size */
         }
 
         input[type="submit"]:hover {
-            background-color: #0056b3; /* Darker blue */
+            background-color: #0056b3;
         }
 
-        .description {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #555;
-        }
-
-        /* Small screen adjustments */
-        @media (max-width: 600px) {
+        /* Responsive Design Adjustments */
+        @media (max-width: 768px) {
             form {
-                margin: 20px;
+                width: 90%;
+                /* More responsive on smaller screens */
+                padding: 20px;
+            }
+
+            input[type="file"],
+            input[type="text"] {
+                padding: 10px;
+            }
+
+            body {
+                height: auto;
+                min-height: 100vh;
             }
         }
 
+        /* Additional Styles for File List and Remove Buttons */
         .file-list {
-            max-height: 200px; /* Adjust the height as needed */
-            overflow-y: auto; /* Enables scrolling */
-            margin-top: 10px; /* Spacing above the list */
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
         }
 
         .file-entry {
             display: flex;
-            align-items: center; /* Aligns items vertically in the center */
-            justify-content: space-between; /* Adds space between the file name and button */
-            margin-bottom: 5px; /* Spacing between file entries */
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border: 1px solid #e1e4e8;
+            margin-bottom: 5px;
+            border-radius: 4px;
         }
 
         .file-name {
-            margin-right: 10px; /* Spacing between the file name and the remove button */
+            font-size: 16px;
+            color: #333;
         }
 
         .remove-button {
+            background-color: #ff4d4f;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
             cursor: pointer;
-            color: #ff0000;
+            font-size: 14px;
         }
 
+        .remove-button:hover {
+            background-color: #ff7875;
+        }
 
+        #loadingAnimation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: fixed;
+            /* or absolute */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+        }
     </style>
 </head>
+
 <body>
     <form id="uploadForm" enctype="multipart/form-data">
-        <h2>File and Prompt Uploader</h2>
-        <p class="description">Select a directory of files you wish to upload and enter a prompt for processing.</p>
-        <input type="file" name="directory" webkitdirectory directory multiple/>
+        <h2>AI Legacy Code Migration</h2>
+        <p class="description">Select a directory of files you wish to migrate and enter a your vision of migration.</p>
+        <input type="file" name="directory" webkitdirectory directory multiple />
         <div id="fileList"></div>
-        <input type="text" name="prompt" placeholder="Enter prompt here"/>
-        <input type="submit" value="Upload"/>
+        <input type="text" name="general_plan" placeholder="Type a general migration plan..." />
+        <input type="text" name="tech_stack" placeholder="Specify a new stack..." />
+        <input type="submit" value="Upload" />
+        <div id="loadingAnimation" style="display: none;">
+            <!-- <p>Loading...</p> Placeholder text; will be replaced with actual animation -->
+        </div>
     </form>
     <script src="../src/App.js"></script>
+
+
 </body>
+
 </html>

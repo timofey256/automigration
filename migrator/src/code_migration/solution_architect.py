@@ -318,8 +318,7 @@ class SolutionArchitect:
             "content": prompt,
             }
             ],
-            model=self.model,
-            max_tokens=self.max_tokens
+            model=self.model
         )
 
         return chat_completion.choices[0].message.content

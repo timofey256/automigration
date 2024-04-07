@@ -51,11 +51,45 @@ class SoftwareEngineer:
 
             Name of the New File: (e.g., GuestController.java)
             Content of the File: (The Java/Spring Boot equivalent of the original Python module, considering Spring Boot's conventions and the application's architectural requirements.)
+
+        DO NOT INCLUDE ANYTHING BUT REQUIRED FORMAT OF (test_filename : [content of the test file]). DO NOT ADD ANY COMMENTS!
+        Ensure that filenames include extensions corresponding to their programming language. For example, if you write tests for C#, generate files with .cs extension. 
+        Important note: YOU HAVE TO IMPLEMENT ALL THE FUNCTIONALITY!
+        Make sure you implement all the neccessary functionality
         """
 
         prompt = f"{task}\n\n{expected_output_format}"
+        
+        migrated_code = self.send_request(prompt)
+        print(migrated_code)
+        return self.parse_files(migrated_code)
 
-        return self.send_request(prompt)
+    def modify_code(self, prev_version_of_code, modifications):
+        task = f"""
+        Modificate the Migrated Code below according to the these modifications: \"{modifications}\"
+        
+        Here is the previous version of code: 
+        {prev_version_of_code}
+        """
+
+        expected_output_format = f"""
+        Expected Output Format:
+        For each key component identified in the programmer documentation and according to the project structure, generate the corresponding code in the new technology stack. The output should be formatted as follows for each new file created:
+
+            Name of the New File: (e.g., GuestController.java)
+            Content of the File: (The Java/Spring Boot equivalent of the original Python module, considering Spring Boot's conventions and the application's architectural requirements.)
+
+        DO NOT INCLUDE ANYTHING BUT REQUIRED FORMAT OF (test_filename : [content of the test file]). DO NOT ADD ANY COMMENTS!
+        Ensure that filenames include extensions corresponding to their programming language. For example, if you write tests for C#, generate files with .cs extension. 
+        Important note: YOU HAVE TO IMPLEMENT ALL THE FUNCTIONALITY!
+        Make sure you implement all the neccessary functionality
+        """
+
+        prompt = f"{task}\n\n{expected_output_format}"
+        migrated_code = self.send_request(prompt)
+        print(migrated_code)
+        print(self.parse_files(migrated_code))
+        return self.parse_files(migrated_code)
 
     def save_migrated_files(self, files_str):
         files = self.parse_files(files_str)
@@ -74,17 +108,23 @@ class SoftwareEngineer:
     def parse_files(self, message):
         lines = message.split('\n')
         test_files = {}
-        current_filename = ""
+        current_filename = None
         for line in lines:
-            if line and line.strip().startswith('Name of the New File'): # line.startswith("1. ") or line.startswith("2. "):  # New test file detected
-                current_filename = line.strip().split(':')[1].strip().replace('\\', '')
+            if line and (line.strip().startswith('Name of the New File') or line.strip().startswith('New File Name') or line.strip()[0] in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']):
+                try:
+                    current_filename = line.strip().split(':')[1].strip().replace('\\', '')
+                except:
+                    current_filename = line.strip().split()[1]
                 test_files[current_filename] = ""
             else:
                 if current_filename:
-                    if line.strip().startswith("```") or line.strip().startswith("Content of the File:"):
+                    if line.strip() == "```":
+                        current_filename = None
+                        continue
+
+                    if line.strip().startswith("```") or line.strip().startswith("Content"):
                         continue
                     test_files[current_filename] += line + "\n"
-        
         return test_files
     
     def send_request(self, prompt):
@@ -100,8 +140,7 @@ class SoftwareEngineer:
             "content": prompt,
             }
             ],
-            model=self.model,
-            # max_tokens=self.max_tokens
+            model=self.model
         )
 
         return chat_completion.choices[0].message.content

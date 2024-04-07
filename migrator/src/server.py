@@ -27,47 +27,70 @@ if not os.path.exists(UPLOAD_FOLDER):
 @app.route('/upload', methods=['POST'])
 def upload_files():
     files = request.files.getlist('directory')
-    prompt = request.form.get('prompt', '')
+    print(files)
+    agents_singleton.general_plan = request.form.get('general_plan', '')
+    agents_singleton.tech_stack = request.form.get('tech_stack', '')
+    print(agents_singleton.general_plan)
+    print(agents_singleton.tech_stack)    
 
     if not files or files[0].filename == '':
         # print(files)
         return jsonify({'error': 'No files selected.'})
 
     files_content_dict = {}
+    project_structure = []
 
     for file in files:
         filename = secure_filename(file.filename)
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(file_path)
+        content = file.read().decode('utf-8')
 
-        with open(file_path, 'r') as file_content:
-            content = file_content.read()
-            files_content_dict[filename] = content
+        files_content_dict[filename] = content
+        project_structure.append(filename)
 
-    agents_singleton.generate_technical_documentation(files_content_dict)
-    print(agents_singleton.technical_documentation)
+    agents_singleton.generate_tech_docs(project_structure, files_content_dict)
 
-    return jsonify({'message': f'{len(files)} files uploaded successfully', 'prompt': prompt})
+    return jsonify({'message': f'{len(files)} files uploaded successfully', 
+                    'general_plan': agents_singleton.general_plan, 
+                    'tech_stack': agents_singleton.tech_stack})
 
-def something():
-    x = False
-    if (x == True):
-        return "# Title\n\nSome content."
-    return "## Another Title\n\nMore content."
-    
 @app.route('/success')
 def upload_success():
-    markdown_content_1 = something()
-    markdown_content_2 = something()
-    html_content_1 = markdown(markdown_content_1)
-    html_content_2 = markdown(markdown_content_2)
-    return render_template('second.html', content1=html_content_1, content2=html_content_2)
+    tech_docs_markdown = markdown(agents_singleton.technical_documentation)
+    print(tech_docs_markdown)
+    return render_template('second.html', content1=tech_docs_markdown)
 
-@app.route('/regenerate-markdown')
-def regenerate_markdown():
-    window = request.args.get('window', type=int)
-    new_markdown_content = '## Another Title\n\nMore content.\n## Another Title\n\nMore content.\n## Another Title\n\nMore content.'  # Raw markdown content
-    return jsonify({'content': new_markdown_content})
+@app.route('/regenerate-migration-plan', methods=['POST'])
+def regenerate_migration_plan():
+    data = request.get_json()
+    prompt = data.get('prompt', 'Default prompt')
+    # Assuming regenerate_migration_plan returns a Markdown string
+    migration_plan_markdown = markdown(agents_singleton.regenerate_migration_plan(prompt))
+    return jsonify({'content': migration_plan_markdown})
+
+@app.route('/regenerate-migrated-code', methods=['POST'])
+def regenerate_migrated_code():
+    data = request.get_json()
+    prompt = data.get('prompt', 'Default prompt')
+    migration_plan_markdown = agents_singleton.regenerate_migrated_code(prompt)
+    return render_template('fifth.html', files_dict=migration_plan_markdown)
+
+@app.route('/generate_tests')
+def generate_tests():
+    tests = agents_singleton.generate_tests()
+    print(tests) 
+    return render_template('fourth.html', files_dict=tests)
+
+@app.route('/generate_migrated_code')
+def generate_migrated_code():
+    print("hello!")
+    migrated_code = agents_singleton.generate_migrated_code()
+    print(migrated_code) 
+    return render_template('fifth.html', files_dict=migrated_code)
+
+@app.route('/to-migration-plan')
+def to_migration_plan():
+    migration_plan_markdown = markdown(agents_singleton.generate_migration_plan())
+    return render_template('third.html', content1=migration_plan_markdown)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>File Listing</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.4.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-container {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            overflow: auto;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #007BFF;
+        }
+
+        .file-content {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            overflow-y: auto;
+            max-height: 200px;
+            /* Optional: Set a max height for content boxes */
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="text-align:center; margin-bottom:20px;">Migrated Code</h1>
+        {% for file_name, file_content in files_dict.items() %}
+        <div class="file-container">
+            <div class="file-name">{{ file_name }}</div>
+            <pre class="file-content"><code>{{ file_content }}</code></pre>
+        </div>
+        {% endfor %}
+        <button id="regenerate-button" onclick="promptForReferences()">Modify code</button>
+    </div>
+    <script>
+        function promptForReferences() {
+            const userPrompt = prompt("Enter your desired modifications for Migrated Code:");
+            if (userPrompt) {
+                regenerateContent(userPrompt);
+            }
+        }
+
+        function regenerateContent(userPrompt) {
+            fetch('/regenerate-migrated-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: userPrompt }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    updatePageContent(data.migration_plan_markdown);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+
+        function updatePageContent(markdownContent) {
+            // Find the container where the migrated code will be displayed
+            const container = document.querySelector('.container');
+            // Assuming you want to replace the entire container's content:
+            // This is a simple example; adjust according to your actual layout and needs
+            container.innerHTML = `<h1 style="text-align:center; margin-bottom:20px;">Migrated Code</h1>` + markdownContent;
+            // Re-apply syntax highlighting
+            document.querySelectorAll('pre.file-content code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre.file-content code').forEach((block) => {
+                hljs.highlightBlock(block);
+            });
+        });
+    </script>
+</body>
+
+</html>

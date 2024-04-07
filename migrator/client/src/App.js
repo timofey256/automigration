@@ -11,11 +11,9 @@ function setupFormSubmission() {
 function handleFormSubmit(e) {
   e.preventDefault();
 
-  if (!window.confirm('Are you sure you have selected the right files?')) {
-      return;
-  }
 
   const formData = new FormData(e.target);
+  console.log(formData)
 
   fetch('http://127.0.0.1:5000/upload', {
       method: 'POST',
