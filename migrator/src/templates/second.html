@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Success - File Uploaded</title>
+  <style>
+    .container {
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
+    .window-container {
+      display: flex;
+      flex-direction: column; /* Stack window and button vertically */
+      align-items: center; /* Center items horizontally */
+      margin: 0 10px; /* Space between the pairs */
+    }
+    .scroll-window {
+      width: 600px; /* Adjust width as needed */
+      height: 700px; /* Adjust height as needed */
+      border: 1px solid #ccc;
+      overflow-y: auto; /* Scrollbar appears if content exceeds this height */
+      margin-bottom: 10px; /* Space between the window and the button */
+    }
+    .regenerate-button {
+      padding: 5px 15px;
+      font-size: 0.8em;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="window-container">
+      <div id="markdown-window-1" class="scroll-window">
+        {{ content1|safe }}
+      </div>
+    </div>
+    
+    <div class="window-container">
+      <div id="markdown-window-2" class="scroll-window">
+        {{ content2|safe }}
+      </div>
+      <button class="regenerate-button" onclick="regenerateText(2)">Regenerate Text</button>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    function regenerateText(windowNumber) {
+  fetch('/regenerate-markdown?window=' + windowNumber)
+    .then(response => response.json())
+    .then(data => {
+      let markdownContent = data.content;
+      let windowElement = document.getElementById('markdown-window-' + windowNumber);
+      windowElement.innerHTML = '';  // Clear existing content
+
+      // Function to add characters one by one
+      let index = 0;
+      function typeWriter() {
+        if (index < markdownContent.length) {
+          windowElement.textContent += markdownContent.charAt(index);
+          index++;
+          setTimeout(typeWriter, 20);  // Adjust the timing as needed
+        } else {
+          // Once the typing effect is done, convert and set the final HTML content
+          windowElement.innerHTML = marked.parse(markdownContent);
+        }
+      }
+
+      // Start the typewriter effect
+      typeWriter();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
+}
+
+
+    
+  </script>
+</body>
+</html>

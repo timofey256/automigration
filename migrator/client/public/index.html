@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Directory</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        form h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="file"],
+        input[type="text"] {
+            width: calc(100% - 20px);
+            margin-bottom: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            font-size: 16px;
+            display: block;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff; /* Bootstrap blue */
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3; /* Darker blue */
+        }
+
+        .description {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #555;
+        }
+
+        /* Small screen adjustments */
+        @media (max-width: 600px) {
+            form {
+                margin: 20px;
+            }
+        }
+
+        .file-list {
+            max-height: 200px; /* Adjust the height as needed */
+            overflow-y: auto; /* Enables scrolling */
+            margin-top: 10px; /* Spacing above the list */
+        }
+
+        .file-entry {
+            display: flex;
+            align-items: center; /* Aligns items vertically in the center */
+            justify-content: space-between; /* Adds space between the file name and button */
+            margin-bottom: 5px; /* Spacing between file entries */
+        }
+
+        .file-name {
+            margin-right: 10px; /* Spacing between the file name and the remove button */
+        }
+
+        .remove-button {
+            cursor: pointer;
+            color: #ff0000;
+        }
+
+
+    </style>
+</head>
+<body>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <h2>File and Prompt Uploader</h2>
+        <p class="description">Select a directory of files you wish to upload and enter a prompt for processing.</p>
+        <input type="file" name="directory" webkitdirectory directory multiple/>
+        <div id="fileList"></div>
+        <input type="text" name="prompt" placeholder="Enter prompt here"/>
+        <input type="submit" value="Upload"/>
+    </form>
+    <script src="../src/App.js"></script>
+</body>
+</html>
