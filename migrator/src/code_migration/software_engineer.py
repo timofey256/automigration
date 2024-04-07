@@ -35,9 +35,6 @@ class SoftwareEngineer:
         Migration Instructions: 
         {instruction}
         
-        Integration tests (they have to pass!): 
-        {tests}
-        
         Project Structure: 
         {structure}
 
@@ -52,7 +49,7 @@ class SoftwareEngineer:
             Name of the New File: (e.g., GuestController.java)
             Content of the File: (The Java/Spring Boot equivalent of the original Python module, considering Spring Boot's conventions and the application's architectural requirements.)
 
-        DO NOT INCLUDE ANYTHING BUT REQUIRED FORMAT OF (test_filename : [content of the test file]). DO NOT ADD ANY COMMENTS!
+        DO NOT ADD ANY OTHER TEXT BUT THE REQUIRED FORMAT (test_filename : [content of the test file]). DO NOT ADD ANY COMMENTS!
         Ensure that filenames include extensions corresponding to their programming language. For example, if you write tests for C#, generate files with .cs extension. 
         Important note: YOU HAVE TO IMPLEMENT ALL THE FUNCTIONALITY!
         Make sure you implement all the neccessary functionality
@@ -79,7 +76,22 @@ class SoftwareEngineer:
             Name of the New File: (e.g., GuestController.java)
             Content of the File: (The Java/Spring Boot equivalent of the original Python module, considering Spring Boot's conventions and the application's architectural requirements.)
 
-        DO NOT INCLUDE ANYTHING BUT REQUIRED FORMAT OF (test_filename : [content of the test file]). DO NOT ADD ANY COMMENTS!
+        Name of the New File: HumanPlayer.ts
+        Content of the File:
+
+        Example:
+        ```typescript
+        import PlayerInterface from "./PlayerInterface";
+
+        export class HumanPlayer implements PlayerInterface 
+            char: string;
+
+            constructor(myChar: string) 
+                this.char = myChar;
+        ```
+
+        Note that you have to rewrite the regular files, not the test ones.
+        DO NOT ADD ANY OTHER TEXT BUT THE REQUIRED FORMAT (test_filename : [content of the test file]). DO NOT ADD ANY COMMENTS!
         Ensure that filenames include extensions corresponding to their programming language. For example, if you write tests for C#, generate files with .cs extension. 
         Important note: YOU HAVE TO IMPLEMENT ALL THE FUNCTIONALITY!
         Make sure you implement all the neccessary functionality
@@ -87,9 +99,9 @@ class SoftwareEngineer:
 
         prompt = f"{task}\n\n{expected_output_format}"
         migrated_code = self.send_request(prompt)
-        print(migrated_code)
-        print(self.parse_files(migrated_code))
-        return self.parse_files(migrated_code)
+        parsed = self.parse_files(migrated_code)
+        print(f"----------\nParsed:\n{parsed}")
+        return parsed
 
     def save_migrated_files(self, files_str):
         files = self.parse_files(files_str)
@@ -105,6 +117,29 @@ class SoftwareEngineer:
             with open(file_path, 'w', encoding='utf-8') as file:
                 file.write(content)
 
+    def parse_files_for_modifications(self, message):
+        lines = message.split('\n')
+        test_files = {}
+        current_filename = None
+        for line in lines:
+            if line and ':' in line:
+                try:
+                    current_filename = line.strip().replace(':', '')
+                except:
+                    current_filename = line
+                test_files[current_filename] = ""
+            else:
+                if current_filename:
+                    if line.strip() == "```":
+                        current_filename = None
+                        continue
+
+                    if line.strip().startswith("```") or line.strip().startswith("Content"):
+                        continue
+                    test_files[current_filename] += line + "\n"
+        return test_files
+
+
     def parse_files(self, message):
         lines = message.split('\n')
         test_files = {}
@@ -114,7 +149,10 @@ class SoftwareEngineer:
                 try:
                     current_filename = line.strip().split(':')[1].strip().replace('\\', '')
                 except:
-                    current_filename = line.strip().split()[1]
+                    try:
+                        current_filename = line.strip().split()[1]
+                    except:
+                        current_filename = line
                 test_files[current_filename] = ""
             else:
                 if current_filename:
