@@ -59,6 +59,25 @@
             /* Optional: Set a max height for content boxes */
         }
 
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            align-self: center;
+            /* Center the button in the container */
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+
+
         @media (max-width: 768px) {
             .container {
                 width: 90%;
@@ -97,23 +116,40 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    updatePageContent(data.migration_plan_markdown);
+                    console.log(data.content)
+                    updateFileContainers(data.content);
                 })
                 .catch(error => {
                     console.error('Error:', error);
                 });
         }
 
-        function updatePageContent(markdownContent) {
-            // Find the container where the migrated code will be displayed
+        function updateFileContainers(filesDict) {
             const container = document.querySelector('.container');
-            // Assuming you want to replace the entire container's content:
-            // This is a simple example; adjust according to your actual layout and needs
-            container.innerHTML = `<h1 style="text-align:center; margin-bottom:20px;">Migrated Code</h1>` + markdownContent;
-            // Re-apply syntax highlighting
-            document.querySelectorAll('pre.file-content code').forEach((block) => {
-                hljs.highlightBlock(block);
-            });
+            // Remove existing file containers
+            document.querySelectorAll('.file-container').forEach(el => el.remove());
+
+            // Create new file containers for each file in the dictionary
+            for (const [fileName, fileContent] of Object.entries(filesDict)) {
+                const fileContainer = document.createElement('div');
+                fileContainer.className = 'file-container';
+
+                const fileNameDiv = document.createElement('div');
+                fileNameDiv.className = 'file-name';
+                fileNameDiv.textContent = fileName;
+
+                const fileContentPre = document.createElement('pre');
+                fileContentPre.className = 'file-content';
+
+                const codeElement = document.createElement('code');
+                codeElement.textContent = fileContent;
+
+                fileContentPre.appendChild(codeElement);
+                fileContainer.appendChild(fileNameDiv);
+                fileContainer.appendChild(fileContentPre);
+
+                container.insertBefore(fileContainer, container.lastElementChild); // Insert before the button
+            }
         }
 
         document.addEventListener('DOMContentLoaded', (event) => {

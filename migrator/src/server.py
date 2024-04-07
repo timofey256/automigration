@@ -71,8 +71,8 @@ def regenerate_migration_plan():
 def regenerate_migrated_code():
     data = request.get_json()
     prompt = data.get('prompt', 'Default prompt')
-    migration_plan_markdown = agents_singleton.regenerate_migrated_code(prompt)
-    return render_template('fifth.html', files_dict=migration_plan_markdown)
+    files_dict = agents_singleton.regenerate_migrated_code(prompt)
+    return jsonify({'content': files_dict})
 
 @app.route('/generate_tests')
 def generate_tests():

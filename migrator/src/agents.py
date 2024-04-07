@@ -60,6 +60,10 @@ class Agents:
         return self.migrated_code
     
     def regenerate_migrated_code(self, prompt):
+        print("---")
+        print(f"{self.migrated_code}")
+        print(f"{prompt}")
+        print("---")
         self.migrated_code = self.programmer.modify_code(self.migrated_code, prompt)
         print("="*30)
         print("="*30)
