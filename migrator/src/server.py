@@ -5,7 +5,7 @@ from flask import render_template
 from flask_cors import CORS
 from markdown2 import markdown
 
-from agents import Agents
+from migrator.src.code_migration.agents import Agents
 
 app = Flask(__name__)
 CORS(app)
